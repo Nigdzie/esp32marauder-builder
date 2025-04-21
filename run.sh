@@ -3,21 +3,18 @@
 set -euo pipefail
 : "${IS_CUSTOM_AUTO:=false}"
 
+CUSTOM_DIR="/project/custom_boards/${MARAUDER_BOARD}"
+
 echo "🔧 Running injection patch and validation..."
 mkdir -p /project/output
 
-if [[ "$IS_CUSTOM_AUTO" == "true" ]]; then
-  echo "🚀 Running injection for custom auto board: $MARAUDER_BOARD"
-  python3 "/project/custom_boards/${MARAUDER_BOARD}/inject.py" --all > /project/output/inject.log 2>&1
-
-  if [[ $? -ne 0 ]]; then
-    echo "❌ Injection failed. See log:"
-    cat /project/output/inject.log
-    exit 1
-  fi
-else
-  echo "🧘 Skipping injection step (IS_CUSTOM_AUTO != true)"
-fi
+echo "🚀 Running injection for custom auto board: $MARAUDER_BOARD"
+python3 "/tmp/inject.py" --all > /project/output/inject.log 2>&1
+if [[ $? -ne 0 ]]; then
+  echo "❌ Injection failed. See log:"
+  cat /project/output/inject.log
+  exit 1
+ fi
 
 if [[ ! -f /project/platform.txt ]]; then
   echo "❌ platform.txt not found in /project"

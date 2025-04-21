@@ -7,6 +7,7 @@ if [[ "$1" == "clean" ]]; then
   rm -rf output/*
   docker-compose down || docker compose down || true
   docker builder prune --all -f
+  docker image prune --all --force
   exit 0
 fi
 
