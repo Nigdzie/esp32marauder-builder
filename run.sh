@@ -5,26 +5,11 @@ set -euo pipefail
 
 CUSTOM_DIR="/project/custom_boards/${MARAUDER_BOARD}"
 
-echo "🔧 Running injection patch and validation..."
 mkdir -p /project/output
-
-echo "🚀 Running injection for custom auto board: $MARAUDER_BOARD"
-python3 "/tmp/inject.py" --all > /project/output/inject.log 2>&1
-if [[ $? -ne 0 ]]; then
-  echo "❌ Injection failed. See log:"
-  cat /project/output/inject.log
-  exit 1
- fi
-
-if [[ ! -f /project/platform.txt ]]; then
-  echo "❌ platform.txt not found in /project"
-  exit 1
-fi
 
 cp /project/platform.txt "/root/.arduino15/packages/esp32/hardware/esp32/${ESP32_VERSION}/platform.txt"
 
 SKETCH_PATH="/project/ESP32Marauder/esp32_marauder/esp32_marauder.ino"
-FQBN="esp32:esp32:$ESP32_CHIP"
 
 echo "📦 FQBN: $FQBN"
 echo "📁 Sketch: $SKETCH_PATH"
@@ -67,19 +52,19 @@ else
   echo "⚠️ boot_app0.bin not found at expected location"
 fi
 
-if [[ "$IS_CUSTOM_AUTO" == "true" ]]; then
-  echo "🔍 Validating injected source files..."
-  python3 "/project/custom_boards/${MARAUDER_BOARD}/inject.py" --validate || {
-    echo "❌ Injection validation failed!" >&2
-    exit 1
-  }
-fi
-
 if [[ -f "/project/output/inject.log" ]]; then
   echo "🪵 Injection log:"
   cat /project/output/inject.log
 else
   echo "⚠️ inject.log not found inside container."
+fi
+
+echo "🔍 Validating injected source files..."
+if [[ -f "/project/custom_boards/${MARAUDER_BOARD}/inject.py" ]]; then
+  python3 "/project/custom_boards/${MARAUDER_BOARD}/inject.py" --validate || {
+    echo "❌ Injection validation failed!" >&2
+    exit 1
+  }
 fi
 
 echo "🧹 Cleaning up extra files..."

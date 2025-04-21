@@ -79,14 +79,29 @@ manual_select=false
 
 if [[ -f "$CHIP_FILE" ]]; then
   chip_value=$(<"$CHIP_FILE")
-  chip_value="${chip_value,,}"
-  if [[ "$chip_value" =~ ^esp32(s2|s3|c3)?$ ]]; then
-    ESP32_CHIP="$chip_value"
-    echo "🔎 Detected chip from chip.txt: $ESP32_CHIP"
-  else
-    echo "⚠️ Invalid chip value in chip.txt: '$chip_value'"
-    manual_select=true
-  fi
+
+  case "$chip_value" in
+    d32 | m5stick-c )
+      ESP32_CHIP="esp32"
+      FQBN="esp32:esp32:$chip_value"
+      echo "🔎 Detected chip alias: $chip_value → $FQBN"
+      ;;
+    esp32 | esp32s2 | esp32s3 | esp32c3 )
+      ESP32_CHIP="$chip_value"
+      FQBN="esp32:esp32:$ESP32_CHIP"
+      echo "🔎 Detected chip from chip.txt: $ESP32_CHIP"
+      ;;
+    esp32:*:* )
+      FQBN="$chip_value"
+      ESP32_CHIP="custom"
+      echo "🔎 Detected full FQBN from chip.txt: $FQBN"
+      ;;
+    * )
+      echo "⚠️ Invalid chip value in chip.txt: '$chip_value'"
+      manual_select=true
+      ;;
+  esac
+
 else
   echo "📬 chip.txt not found in $CHIP_FILE"
   manual_select=true
@@ -98,6 +113,7 @@ if [[ "$manual_select" == true ]]; then
   select chip in "${chips[@]}"; do
     if [[ -n "$chip" ]]; then
       ESP32_CHIP="$chip"
+      FQBN="esp32:esp32:$ESP32_CHIP"
       break
     else
       echo "❌ Invalid chip"
@@ -126,7 +142,7 @@ export ESP32_VERSION
 export ESP32_CHIP
 export MARAUDER_BOARD
 export IS_CUSTOM_AUTO
-
+export FQBN
 # 🚧 Choose Docker Compose command
 DOCKER_COMPOSE_CMD="docker compose"
 if ! docker compose version &>/dev/null; then
@@ -144,7 +160,6 @@ $DOCKER_COMPOSE_CMD build \
   --build-arg ESP32_VERSION="$ESP32_VERSION" \
   --build-arg ESP32_CHIP="$ESP32_CHIP" \
   --build-arg MARAUDER_BOARD="$MARAUDER_BOARD" \
-  --build-arg IS_CUSTOM_AUTO="$IS_CUSTOM_AUTO"
-
+  --build-arg IS_CUSTOM_AUTO="$IS_CUSTOM_AUTO" 
 # ▶️ Run container
 $DOCKER_COMPOSE_CMD up

@@ -1,5 +1,6 @@
 services:
   marauder-builder:
+    image: esp32marauder-builder-marauder-builder:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,6 +15,7 @@ services:
       - ESP32_CHIP=${ESP32_CHIP}
       - MARAUDER_BOARD=${MARAUDER_BOARD}
       - IS_CUSTOM_AUTO=${IS_CUSTOM_AUTO}
+      - FQBN=${FQBN}
     volumes:
       - ./output:/project/output
       - ./platform.txt:/project/platform.txt
