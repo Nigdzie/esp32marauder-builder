@@ -22,7 +22,6 @@ jobs:
         board:
           - { name: "BPMCIRCUITS_FEBERIS", fbqn: "esp32:esp32:esp32", chip: "esp32" }
           - { name: "BPMCIRCUITS_FEBERIS_PRO", fbqn: "esp32:esp32:esp32", chip: "esp32" }
-          - { name: "CYD2USB", fbqn: "esp32:esp32:d32:PartitionScheme=min_spiffs", chip: "esp32" }
 
     env:
       ESP32_VERSION: 2.0.10
@@ -77,7 +76,6 @@ jobs:
             Includes builds for:
             - BPMCIRCUITS_FEBERIS
             - BPMCIRCUITS_FEBERIS_PRO
-            - CYD2USB
           files: release_builds/**/*.bin
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GIST_SECRET }}
