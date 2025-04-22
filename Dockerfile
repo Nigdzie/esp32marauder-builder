@@ -3,7 +3,6 @@ FROM ubuntu:22.04
 ARG ESP32_VERSION
 ARG ESP32_CHIP
 ARG MARAUDER_BOARD
-ARG IS_CUSTOM_AUTO
 
 ENV PATH="/root/bin:$PATH"
 
@@ -52,17 +51,10 @@ RUN rm -rf /project/ESP32Marauder && \
 RUN if [[ -f /tmp/inject.py ]]; then \
       echo "🚀 Running inject.py for $MARAUDER_BOARD"; \
       mkdir -p /project/output && \
-      set -e && \
-      python3 /tmp/inject.py --all > /project/output/inject.log 2>&1 && \
-      cat /project/output/inject.log; \
+      python3 /tmp/inject.py --all > /tmp/inject.log 2>&1 && \
+      cat /tmp/inject.log; \
     else \
       echo "🧘 Skipping inject.py – not found at /tmp/inject.py"; \
-    fi
-
-RUN if [[ -f /project/output/inject.log ]]; then \
-      echo "🪵 Injection log:" && cat /project/output/inject.log; \
-    else \
-      echo "📭 No inject log found."; \
     fi
 
 RUN echo "📂 Copying Files to esp32_marauder"; \
@@ -71,8 +63,7 @@ RUN echo "📂 Copying Files to esp32_marauder"; \
       cp -rv /tmp/Files/* /project/ESP32Marauder/esp32_marauder/; \
     fi
 
-RUN echo "📂 Copying Libs to /root/Arduino/libraries/"; \
-    if [[ -d /tmp/Libs ]]; then \
+RUN if [[ -d /tmp/Libs ]]; then \
       mkdir -p /root/Arduino/libraries/ && \
       echo "📂 Copying Libs to /root/Arduino/libraries/"; \
       cp -rv /tmp/Libs/* /root/Arduino/libraries/; \

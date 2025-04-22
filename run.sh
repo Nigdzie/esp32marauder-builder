@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -euo pipefail
-: "${IS_CUSTOM_AUTO:=false}"
 
 CUSTOM_DIR="/project/custom_boards/${MARAUDER_BOARD}"
 
@@ -52,20 +51,32 @@ else
   echo "⚠️ boot_app0.bin not found at expected location"
 fi
 
-if [[ -f "/project/output/inject.log" ]]; then
-  echo "🪵 Injection log:"
-  cat /project/output/inject.log
+# 🪵 Show injection log (protect against directory edge case)
+#INJECT_LOG="$BIN_PATH/inject.log"
+
+if [[ -f /tmp/inject.log ]]; then
+  echo "🪵 Injection log from build stage:"
+  cat /tmp/inject.log
 else
-  echo "⚠️ inject.log not found inside container."
+  echo "⚠️ inject.log not found."
 fi
 
+# 🔍 Validate injected source files
 echo "🔍 Validating injected source files..."
 if [[ -f "/project/custom_boards/${MARAUDER_BOARD}/inject.py" ]]; then
   python3 "/project/custom_boards/${MARAUDER_BOARD}/inject.py" --validate || {
     echo "❌ Injection validation failed!" >&2
     exit 1
   }
+else
+  echo "⚠️ inject.py not found for board: $MARAUDER_BOARD — skipping validation"
 fi
 
+# 🧹 Clean up
 echo "🧹 Cleaning up extra files..."
-rm -f "$BIN_PATH"/*.elf "$BIN_PATH"/*.map "$BIN_PATH"/inject.log
+rm -f "$BIN_PATH"/*.elf "$BIN_PATH"/*.map
+if [[ -f "$BIN_PATH/inject.log" ]]; then
+  rm -f "$BIN_PATH/inject.log"
+elif [[ -d "$BIN_PATH/inject.log" ]]; then
+  echo "⚠️ inject.log is a directory – skipping deletion"
+fi

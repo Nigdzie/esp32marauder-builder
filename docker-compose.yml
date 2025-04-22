@@ -8,19 +8,18 @@ services:
         ESP32_VERSION: ${ESP32_VERSION}
         ESP32_CHIP: ${ESP32_CHIP}
         MARAUDER_BOARD: ${MARAUDER_BOARD}
-        IS_CUSTOM_AUTO: ${IS_CUSTOM_AUTO}
     container_name: esp32marauder_builder
     environment:
       - ESP32_VERSION=${ESP32_VERSION}
       - ESP32_CHIP=${ESP32_CHIP}
       - MARAUDER_BOARD=${MARAUDER_BOARD}
-      - IS_CUSTOM_AUTO=${IS_CUSTOM_AUTO}
       - FQBN=${FQBN}
     volumes:
       - ./output:/project/output
       - ./platform.txt:/project/platform.txt
       - ./run.sh:/project/run.sh
       - ./custom_boards:/project/custom_boards:ro
+#      - ./output/inject.log:/tmp/inject.log:ro
     working_dir: /project
     entrypoint: /bin/bash
     command: ./run.sh

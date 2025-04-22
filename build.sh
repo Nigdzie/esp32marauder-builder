@@ -43,7 +43,8 @@ fi
 
 while IFS= read -r -d '' dir; do
   custom_boards+=("$(basename "$dir")")
-done < <(find "$CUSTOM_DIR" -mindepth 1 -maxdepth 1 -type d -print0)
+done < <(find "$CUSTOM_DIR" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z)
+
 
 if [[ ${#custom_boards[@]} -eq 0 ]]; then
   echo "❌ No custom boards found in $CUSTOM_DIR"
@@ -121,13 +122,10 @@ if [[ "$manual_select" == true ]]; then
   done
 fi
 
-IS_CUSTOM_AUTO=true
-
 # 🗒️ Final summary
 echo "📦 Board: $MARAUDER_BOARD"
 echo "🔧 Chip family: $ESP32_CHIP"
 echo "🪡 Core version: $ESP32_VERSION"
-echo "🔹 Custom auto mode: $IS_CUSTOM_AUTO"
 
 # 📃 Show board info.txt if present
 INFO_FILE="$CUSTOM_DIR/$MARAUDER_BOARD/info.txt"
@@ -141,8 +139,12 @@ fi
 export ESP32_VERSION
 export ESP32_CHIP
 export MARAUDER_BOARD
-export IS_CUSTOM_AUTO
 export FQBN
+
+echo "🧹 Forcing no cache build..."
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+
 # 🚧 Choose Docker Compose command
 DOCKER_COMPOSE_CMD="docker compose"
 if ! docker compose version &>/dev/null; then
@@ -156,10 +158,11 @@ if ! docker compose version &>/dev/null; then
 fi
 
 # 🛠️ Build image
-$DOCKER_COMPOSE_CMD build \
+$DOCKER_COMPOSE_CMD build --no-cache \
   --build-arg ESP32_VERSION="$ESP32_VERSION" \
   --build-arg ESP32_CHIP="$ESP32_CHIP" \
-  --build-arg MARAUDER_BOARD="$MARAUDER_BOARD" \
-  --build-arg IS_CUSTOM_AUTO="$IS_CUSTOM_AUTO" 
+  --build-arg MARAUDER_BOARD="$MARAUDER_BOARD"
+
+
 # ▶️ Run container
 $DOCKER_COMPOSE_CMD up
