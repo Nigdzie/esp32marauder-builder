@@ -1,45 +1,53 @@
-name: 🧪 Build All Custom Boards
+name: 🧪 Build Custom Boards
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'custom_boards/**'
+      - 'Dockerfile'
+      - 'run.sh'
+      - 'build.sh'
+      - '.github/workflows/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        board: [BPMCIRCUITS_FEBERIS, BPMCIRCUITS_FEBERIS_PRO, CYD2USB]
+        board:
+          - { name: "BPMCIRCUITS_FEBERIS",   fbqn: "esp32:esp32:esp32",   chip: "esp32" }
+          - { name: "BPMCIRCUITS_FEBERIS_PRO",   fbqn: "esp32:esp32:esp32",   chip: "esp32" }
+          - { name: "CYD2USB",   fbqn: "esp32:esp32:d32:PartitionScheme=min_spiffs",   chip: "esp32" }
 
     env:
       ESP32_VERSION: 2.0.10
-      IS_CUSTOM_AUTO: "true"
-      MARAUDER_BOARD: ${{ matrix.board }}
+      MARAUDER_BOARD: ${{ matrix.board.name }}
+      ESP32_CHIP: ${{ matrix.board.chip }}
+      FQBN: ${{ matrix.board.fbqn }}
 
     steps:
-      - name: 📥 Checkout
+      - name: 📥 Checkout repo
         uses: actions/checkout@v4
-
-      - name: 📦 Read chip type from chip.txt
-        id: chip
-        run: |
-          CHIP_VALUE=$(cat custom_boards/${{ matrix.board }}/chip.txt)
-          echo "ESP32_CHIP=$CHIP_VALUE" >> $GITHUB_ENV
 
       - name: 🐳 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 🛠 Build firmware for ${{ matrix.board }}
+      - name: 🛠 Build firmware for ${{ matrix.board.name }}
         run: |
           echo "📦 Building for board: $MARAUDER_BOARD"
           docker compose build \
-            --build-arg ESP32_VERSION=$ESP32_VERSION \
-            --build-arg ESP32_CHIP=$ESP32_CHIP \
-            --build-arg MARAUDER_BOARD=$MARAUDER_BOARD
+            --build-arg ESP32_VERSION="$ESP32_VERSION" \
+            --build-arg ESP32_CHIP="$ESP32_CHIP" \
+            --build-arg MARAUDER_BOARD="$MARAUDER_BOARD" \
+            --build-arg FQBN="$FQBN"
+
           docker compose up
 
-      - name: 📤 Upload output files
+      - name: 📤 Upload built firmware
         uses: actions/upload-artifact@v4
         with:
-          name: firmware_${{ matrix.board }}
+          name: firmware_${{ matrix.board.name }}
           path: output/*.bin
