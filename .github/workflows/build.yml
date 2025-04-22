@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        board: [BPMCIRCUITS_FEBERIS, BPMCIRCUITS_FEBERIS_PRO]
+        board: [BPMCIRCUITS_FEBERIS, BPMCIRCUITS_FEBERIS_PRO, CYD2USB]
 
     env:
       ESP32_VERSION: 2.0.10
@@ -29,8 +29,7 @@ jobs:
           docker compose build \
             --build-arg ESP32_VERSION=$ESP32_VERSION \
             --build-arg ESP32_CHIP=$(cat custom_boards/${MARAUDER_BOARD}/chip.txt) \
-            --build-arg MARAUDER_BOARD=$MARAUDER_BOARD \
-            --build-arg IS_CUSTOM_AUTO=$IS_CUSTOM_AUTO
+            --build-arg MARAUDER_BOARD=$MARAUDER_BOARD
 
           docker compose up
 
