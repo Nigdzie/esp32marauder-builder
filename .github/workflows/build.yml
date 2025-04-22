@@ -9,6 +9,8 @@ on:
       - 'run.sh'
       - 'build.sh'
       - '.github/workflows/**'
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -18,9 +20,9 @@ jobs:
       fail-fast: false
       matrix:
         board:
-          - { name: "BPMCIRCUITS_FEBERIS",   fbqn: "esp32:esp32:esp32",   chip: "esp32" }
-          - { name: "BPMCIRCUITS_FEBERIS_PRO",   fbqn: "esp32:esp32:esp32",   chip: "esp32" }
-          - { name: "CYD2USB",   fbqn: "esp32:esp32:d32:PartitionScheme=min_spiffs",   chip: "esp32" }
+          - { name: "BPMCIRCUITS_FEBERIS", fbqn: "esp32:esp32:esp32", chip: "esp32" }
+          - { name: "BPMCIRCUITS_FEBERIS_PRO", fbqn: "esp32:esp32:esp32", chip: "esp32" }
+          - { name: "CYD2USB", fbqn: "esp32:esp32:d32:PartitionScheme=min_spiffs", chip: "esp32" }
 
     env:
       ESP32_VERSION: 2.0.10
@@ -44,10 +46,38 @@ jobs:
             --build-arg MARAUDER_BOARD="$MARAUDER_BOARD" \
             --build-arg FQBN="$FQBN"
 
-          docker compose up
+          docker compose up --abort-on-container-exit
 
       - name: 📤 Upload built firmware
         uses: actions/upload-artifact@v4
         with:
           name: firmware_${{ matrix.board.name }}
           path: output/*.bin
+
+  release:
+    if: ${{ always() && !cancelled() && !failure() }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v4
+
+      - name: 📥 Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_builds
+
+      - name: 📦 Create GitHub release (auto)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "auto-v${{ github.run_number }}"
+          name: "Firmware Release ${{ github.run_number }}"
+          body: |
+            Automated firmware build triggered by GitHub Actions.
+            Includes builds for:
+            - BPMCIRCUITS_FEBERIS
+            - BPMCIRCUITS_FEBERIS_PRO
+            - CYD2USB
+          files: release_builds/**/*.bin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
