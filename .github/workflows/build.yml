@@ -78,4 +78,4 @@ jobs:
             - BPMCIRCUITS_FEBERIS_PRO
           files: release_builds/**/*.bin
         env:
-          GITHUB_TOKEN: ${{ secrets.GIST_SECRET }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
