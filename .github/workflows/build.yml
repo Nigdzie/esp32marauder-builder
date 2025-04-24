@@ -1,4 +1,4 @@
-name: 🧪 Build Custom Boards
+name: Build Custom Boards
 
 on:
   workflow_dispatch:
