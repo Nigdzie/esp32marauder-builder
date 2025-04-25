@@ -49,7 +49,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: firmware_${{ matrix.board.name }}
-          path: output/*.bin
+          path: |
+                output/*.bin
+                output/version.txt
 
   release:
     if: ${{ always() && !cancelled() && !failure() }}
@@ -64,12 +66,11 @@ jobs:
         with:
           path: release_builds
 
-      - name: 📋 Read version number
-        id: read_version
+      - name: 🧪 Read version number
+        id: version
         run: |
-          VERSION=$(cat release_builds/output/version.txt)
+          VERSION=$(find release_builds -name version.txt -exec cat {} \;)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "🔖 Found firmware version: $VERSION"
 
       - name: 📦 Create GitHub release (auto)
         uses: softprops/action-gh-release@v2
