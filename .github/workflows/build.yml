@@ -20,6 +20,8 @@ jobs:
         board:
           - { name: "BPMCIRCUITS_FEBERIS", fbqn: "esp32:esp32:esp32", chip: "esp32" }
           - { name: "BPMCIRCUITS_FEBERIS_PRO", fbqn: "esp32:esp32:esp32", chip: "esp32" }
+    
+    name: Build ${{ matrix.board.name }}
 
     env:
       ESP32_VERSION: 2.0.10
@@ -69,7 +71,8 @@ jobs:
       - name: 🧪 Read version number
         id: version
         run: |
-          VERSION=$(find release_builds -name version.txt -exec cat {} \;)
+          VERSION=$(find release_builds -name version.txt -exec cat {} \; | tr -d '\n')
+          echo "VERSION=$VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: 📦 Create GitHub release (auto)
