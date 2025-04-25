@@ -67,6 +67,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: release_builds
+          merge-multiple: true
 
       - name: 🧪 Read version number
         id: version
