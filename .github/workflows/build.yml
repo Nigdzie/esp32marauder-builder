@@ -71,7 +71,7 @@ jobs:
       - name: 🧪 Read version number
         id: version
         run: |
-          VERSION=$(find release_builds -name version.txt -exec cat {} \; | tr -d '\n')
+          VERSION=$(find release_builds -name version.txt | head -n 1 | xargs cat | tr -d '\n')
           echo "VERSION=$VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
