@@ -9,8 +9,6 @@ on:
       - 'run.sh'
       - 'build.sh'
       - '.github/workflows/**'
-  release:
-    types: [published]
 
 jobs:
   build:
@@ -66,14 +64,22 @@ jobs:
         with:
           path: release_builds
 
+      - name: 📋 Read version number
+        id: read_version
+        run: |
+          VERSION=$(cat release_builds/output/version.txt)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "🔖 Found firmware version: $VERSION"
+
       - name: 📦 Create GitHub release (auto)
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "auto-v${{ github.run_number }}"
-          name: "Firmware Release ${{ github.run_number }}"
+          tag_name: "auto-v${{ env.VERSION }}"
+          name: "Firmware Release ${{ env.VERSION }}"
           body: |
             Automated firmware build triggered by GitHub Actions.
-            Includes builds for:
+            Firmware Version: ${{ env.VERSION }}
+            Boards:
             - BPMCIRCUITS_FEBERIS
             - BPMCIRCUITS_FEBERIS_PRO
           files: release_builds/**/*.bin
