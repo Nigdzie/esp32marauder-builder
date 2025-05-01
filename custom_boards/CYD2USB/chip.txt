@@ -1,1 +1,0 @@
-esp32:esp32:d32:PartitionScheme=min_spiffs
