@@ -42,11 +42,11 @@ def patch_configs_h():
             in_block = "gps_stuff"
         elif "//// END" in line:
             if in_block == "board_targets" and not inserted["board_targets"]:
-                new_lines.append("  #define BPMCIRCUITS_FEBERIS\n")
+                new_lines.append("  #define BPMCIRCUITS_FEBERIS_PRO\n")
                 inserted["board_targets"] = True
             elif in_block == "board_features" and not inserted["board_features"]:
                 new_lines.append("""\
-  #ifdef BPMCIRCUITS_FEBERIS
+  #ifdef BPMCIRCUITS_FEBERIS_PRO
     #define FLIPPER_ZERO_HAT
     //#define HAS_BATTERY
     #define HAS_BT
@@ -57,6 +57,7 @@ def patch_configs_h():
     //#define HAS_SD
     //#define HAS_TEMP_SENSOR
     #define HAS_GPS
+    #define HAS_PSRAM
   #endif
 
 """)
@@ -64,23 +65,23 @@ def patch_configs_h():
             in_block = ""
 
         if in_block == "hardware_name" and "#elif defined(XIAO_ESP32_S3)" in line and not inserted["hardware_name"]:
-            new_lines.append('  #elif defined(BPMCIRCUITS_FEBERIS)\n')
-            new_lines.append('    #define HARDWARE_NAME "BPM Circuits FEBERIS"\n')
+            new_lines.append('  #elif defined(BPMCIRCUITS_FEBERIS_PRO)\n')
+            new_lines.append('    #define HARDWARE_NAME "BPM Circuits FEBERIS PRO"\n')
             inserted["hardware_name"] = True
         elif in_block == "mem_limit" and "#elif defined(XIAO_ESP32_S3)" in line and not inserted["mem_limit"]:
-            new_lines.append('  #elif defined(BPMCIRCUITS_FEBERIS)\n')
+            new_lines.append('  #elif defined(BPMCIRCUITS_FEBERIS_PRO)\n')
             new_lines.append('    #define MEM_LOWER_LIM 10000\n')
             inserted["mem_limit"] = True
-        elif in_block == "html_limit" and "#elif defined(MARAUDER_DEV_BOARD_PRO)" in line and not inserted["html_limit"]:
-            new_lines.append('  #elif defined(BPMCIRCUITS_FEBERIS)\n')
+        elif in_block == "html_limit" and "#else" in line and not inserted["html_limit"]:
+            new_lines.append('  #elif defined(BPMCIRCUITS_FEBERIS_PRO)\n')
             new_lines.append('    #define MAX_HTML_SIZE 20000\n')
             inserted["html_limit"] = True
         elif in_block == "gps_stuff" and "#elif defined(MARAUDER_REV_FEATHER)" in line and not inserted["gps_stuff"]:
-            new_lines.append('    #elif defined(BPMCIRCUITS_FEBERIS)\n')
+            new_lines.append('    #elif defined(BPMCIRCUITS_FEBERIS_PRO)\n')
             new_lines.append('      #define GPS_SERIAL_INDEX 2\n')
             new_lines.append('      #define GPS_TX 4\n')
             new_lines.append('      #define GPS_RX 13\n')
-            new_lines.append('      #define mac_history_len 512\n')
+            new_lines.append('      #define mac_history_len 1000\n')
             inserted["gps_stuff"] = True
 
         new_lines.append(line)
@@ -90,17 +91,17 @@ def patch_configs_h():
 
     log("✅ configs.h patched successfully.")
     log("✅ configs.h: inserted targets =", inserted['board_targets'],
-    ", features =", inserted['board_features'],
-    ", mem_limit =", inserted['mem_limit'],
-    ", html_limit =", inserted['html_limit'],
-    ", gps =", inserted['gps_stuff'])
+        ", features =", inserted['board_features'],
+        ", mem_limit =", inserted['mem_limit'],
+        ", html_limit =", inserted['html_limit'],
+        ", gps =", inserted['gps_stuff'])
 
 def validate_configs_h():
     log("🔍 Validating configs.h...")
     required_lines = [
-        "#define BPMCIRCUITS_FEBERIS",
-        '#elif defined(BPMCIRCUITS_FEBERIS)',
-        '#define HARDWARE_NAME "BPM Circuits FEBERIS"',
+        "#define BPMCIRCUITS_FEBERIS_PRO",
+        '#elif defined(BPMCIRCUITS_FEBERIS_PRO)',
+        '#define HARDWARE_NAME "BPM Circuits FEBERIS PRO"',
         "#define MAX_HTML_SIZE 20000",
         "#define MEM_LOWER_LIM 10000",
         "#define GPS_SERIAL_INDEX 2",
@@ -141,7 +142,7 @@ def patch_wifi_scan():
             content = content.replace(old, new)
             log(f"✅ Patched: {old.strip()}")
         else:
-            log(f"Not found: {old.strip()}")
+            log(f"⚠️ Not found: {old.strip()}")
 
     with open(WIFI_PATH, "w") as f:
         f.write(content)
