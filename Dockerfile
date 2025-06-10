@@ -5,6 +5,7 @@ ARG ESP32_CHIP
 ARG MARAUDER_BOARD
 ARG CUSTOM_IDF
 ARG CUSTOM_IDF_DIR
+ARG CUSTOM_IDF_BRANCH
 
 ENV PATH="/root/bin:$PATH"
 
@@ -20,8 +21,12 @@ RUN arduino-cli config init && \
     arduino-cli core update-index && \
     if [[ -n "${CUSTOM_IDF}" && -n "${CUSTOM_IDF_DIR}" ]]; then \
         mkdir -p /root/Arduino/packages/esp32/hardware/esp32 && \
-        git clone --depth=1 "${CUSTOM_IDF}" \
-          "/root/Arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}"; \
+        git clone "${CUSTOM_IDF}" \
+          "/root/Arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}" && \
+        cd "/root/Arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}" && \
+        if [[ -n "${CUSTOM_IDF_BRANCH}" ]]; then \
+            git checkout "${CUSTOM_IDF_BRANCH}"; \
+        fi; \
     else \
         arduino-cli core install esp32:esp32@${ESP32_VERSION}; \
     fi

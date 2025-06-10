@@ -52,9 +52,10 @@ It supports building only custom boards defined locally.
    Build using a custom core repository:
    ```bash
    ./build.sh board=BPMCIRCUITS_FEBERIS \
-     custom-idf=https://github.com/espressif/arduino-esp32.git#release/v3.3.x \
+     custom-idf=https://github.com/espressif/arduino-esp32.git \
+     custom-idf-branch=release/v3.3.x \
      custom-idf-dir=3.3.0
-   ```
+  ```
 
 3. Firmware files will be saved in the `output/` folder.
 
