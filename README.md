@@ -35,7 +35,7 @@ It supports building only custom boards defined locally.
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/youruser/esp32marauder_builder.git
+   git clone https://github.com/Nigdzie/esp32marauder_builder.git
    cd esp32marauder_builder
    ```
 
