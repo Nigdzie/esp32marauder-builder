@@ -8,12 +8,16 @@ services:
         ESP32_VERSION: ${ESP32_VERSION}
         ESP32_CHIP: ${ESP32_CHIP}
         MARAUDER_BOARD: ${MARAUDER_BOARD}
+        CUSTOM_IDF: ${CUSTOM_IDF}
+        CUSTOM_IDF_DIR: ${CUSTOM_IDF_DIR}
     container_name: esp32marauder_builder
     environment:
       - ESP32_VERSION=${ESP32_VERSION}
       - ESP32_CHIP=${ESP32_CHIP}
       - MARAUDER_BOARD=${MARAUDER_BOARD}
       - FQBN=${FQBN}
+      - CUSTOM_IDF=${CUSTOM_IDF}
+      - CUSTOM_IDF_DIR=${CUSTOM_IDF_DIR}
     volumes:
       - ./output:/project/output
       - ./platform.txt:/project/platform.txt

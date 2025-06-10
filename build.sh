@@ -33,6 +33,23 @@ fi
 ESP32_VERSION="${ESP32_VERSION:-2.0.10}"
 CUSTOM_DIR="./custom_boards"
 custom_boards=()
+CUSTOM_IDF=""
+CUSTOM_IDF_DIR=""
+
+# Parse optional arguments
+for arg in "$@"; do
+  case $arg in
+    board=*)
+      input_board="${arg#board=}"
+      ;;
+    custom-idf=*)
+      CUSTOM_IDF="${arg#custom-idf=}"
+      ;;
+    custom-idf-dir=*)
+      CUSTOM_IDF_DIR="${arg#custom-idf-dir=}"
+      ;;
+  esac
+done
 
 # 📦 List available custom boards
 echo "📦 Available custom boards:"
@@ -52,8 +69,7 @@ if [[ ${#custom_boards[@]} -eq 0 ]]; then
 fi
 
 # --- Handle board from argument or interactive selection ---
-if [[ "$1" =~ ^board=.+$ ]]; then
-  input_board="${1#board=}"
+if [[ -n "$input_board" ]]; then
   if [[ " ${custom_boards[*]} " =~ " $input_board " ]]; then
     MARAUDER_BOARD="$input_board"
     echo "✅ Board from argument: $MARAUDER_BOARD"
@@ -126,6 +142,10 @@ fi
 echo "📦 Board: $MARAUDER_BOARD"
 echo "🔧 Chip family: $ESP32_CHIP"
 echo "🪡 Core version: $ESP32_VERSION"
+if [[ -n "$CUSTOM_IDF" ]]; then
+  echo "🔗 Custom core: $CUSTOM_IDF"
+  echo "📂 Core dir: $CUSTOM_IDF_DIR"
+fi
 
 # 📃 Show board info.txt if present
 INFO_FILE="$CUSTOM_DIR/$MARAUDER_BOARD/info.txt"
@@ -140,6 +160,8 @@ export ESP32_VERSION
 export ESP32_CHIP
 export MARAUDER_BOARD
 export FQBN
+export CUSTOM_IDF
+export CUSTOM_IDF_DIR
 
 echo "🧹 Forcing no cache build..."
 export DOCKER_BUILDKIT=1
@@ -161,7 +183,9 @@ fi
 $DOCKER_COMPOSE_CMD build --no-cache \
   --build-arg ESP32_VERSION="$ESP32_VERSION" \
   --build-arg ESP32_CHIP="$ESP32_CHIP" \
-  --build-arg MARAUDER_BOARD="$MARAUDER_BOARD"
+  --build-arg MARAUDER_BOARD="$MARAUDER_BOARD" \
+  --build-arg CUSTOM_IDF="$CUSTOM_IDF" \
+  --build-arg CUSTOM_IDF_DIR="$CUSTOM_IDF_DIR"
 
 
 # ▶️ Run container

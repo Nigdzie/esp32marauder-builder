@@ -3,6 +3,8 @@ FROM ubuntu:22.04
 ARG ESP32_VERSION
 ARG ESP32_CHIP
 ARG MARAUDER_BOARD
+ARG CUSTOM_IDF
+ARG CUSTOM_IDF_DIR
 
 ENV PATH="/root/bin:$PATH"
 
@@ -16,7 +18,13 @@ RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/inst
 
 RUN arduino-cli config init && \
     arduino-cli core update-index && \
-    arduino-cli core install esp32:esp32@${ESP32_VERSION}
+    if [[ -n "${CUSTOM_IDF}" && -n "${CUSTOM_IDF_DIR}" ]]; then \
+        mkdir -p /root/Arduino/packages/esp32/hardware/esp32 && \
+        git clone --depth=1 "${CUSTOM_IDF}" \
+          "/root/Arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}"; \
+    else \
+        arduino-cli core install esp32:esp32@${ESP32_VERSION}; \
+    fi
 
 COPY custom_boards/$MARAUDER_BOARD/ /tmp/
 
@@ -71,8 +79,14 @@ RUN if [[ -d /tmp/Libs ]]; then \
       echo "📭 No Libs directory found – skipping."; \
     fi
 
-RUN mkdir -p /root/.arduino15/packages/esp32/hardware/esp32/${ESP32_VERSION}
-COPY platform.txt /root/.arduino15/packages/esp32/hardware/esp32/${ESP32_VERSION}/platform.txt
+COPY platform.txt /tmp/platform.txt
+RUN if [[ -n "${CUSTOM_IDF_DIR}" ]]; then \
+      mkdir -p /root/Arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR} && \
+      mv /tmp/platform.txt /root/Arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}/platform.txt; \
+    else \
+      mkdir -p /root/.arduino15/packages/esp32/hardware/esp32/${ESP32_VERSION} && \
+      mv /tmp/platform.txt /root/.arduino15/packages/esp32/hardware/esp32/${ESP32_VERSION}/platform.txt; \
+    fi
 
 WORKDIR /project
 
