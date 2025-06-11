@@ -74,7 +74,6 @@ fi
 
 # --- Handle board from argument or interactive selection ---
 if [[ -n "$input_board" ]]; then
-if [[ -n "$input_board" ]]; then
   if [[ " ${custom_boards[*]} " =~ " $input_board " ]]; then
     MARAUDER_BOARD="$input_board"
     echo "✅ Board from argument: $MARAUDER_BOARD"
