@@ -87,8 +87,8 @@ RUN if [[ -d /tmp/Libs ]]; then \
 
 COPY platform.txt /tmp/platform.txt
 RUN if [[ -n "${CUSTOM_IDF_DIR}" ]]; then \
-      mkdir -p /root/.arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR} && \
-      mv /tmp/platform.txt /root/.arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}/platform.txt; \
+      mkdir -p /root/.arduino15/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR} && \
+      mv /tmp/platform.txt /root/.arduino15/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}/platform.txt; \
     else \
       mkdir -p /root/.arduino15/packages/esp32/hardware/esp32/${ESP32_VERSION} && \
       mv /tmp/platform.txt /root/.arduino15/packages/esp32/hardware/esp32/${ESP32_VERSION}/platform.txt; \

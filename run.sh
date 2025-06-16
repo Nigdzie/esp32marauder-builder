@@ -7,7 +7,7 @@ CUSTOM_DIR="/project/custom_boards/${MARAUDER_BOARD}"
 mkdir -p /project/output
 
 if [[ -n "${CUSTOM_IDF_DIR:-}" ]]; then
-  cp /project/platform.txt "/root/Arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}/platform.txt"
+  cp /project/platform.txt "/root/.arduino15/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}/platform.txt"
 else
   cp /project/platform.txt "/root/.arduino15/packages/esp32/hardware/esp32/${ESP32_VERSION}/platform.txt"
 fi
