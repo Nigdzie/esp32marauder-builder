@@ -14,7 +14,7 @@ debug.server.openocd.scripts_dir.windows={runtime.tools.openocd-esp32.path}\shar
 
 tools.esptool_py.path={runtime.platform.path}/tools/esptool
 tools.esptool_py.cmd=esptool
-tools.esptool_py.cmd.linux=esptool.py
+tools.esptool_py.cmd.linux=esptool
 tools.esptool_py.cmd.windows=esptool.exe
 
 tools.esptool_py.network_cmd=python3 "{runtime.platform.path}/tools/espota.py" -r
@@ -176,7 +176,7 @@ recipe.hooks.prebuild.3.pattern.windows=cmd /c if not exist "{build.path}\partit
 # Check if custom bootloader exist: source > variant > build.boot
 recipe.hooks.prebuild.4.pattern_args=--chip {build.mcu} elf2image --flash_mode {build.flash_mode} --flash_freq {build.flash_freq} --flash_size {build.flash_size} -o
 recipe.hooks.prebuild.4.pattern=bash -c "[ -f "{build.source.path}"/bootloader.bin ] && cp -f "{build.source.path}"/bootloader.bin "{build.path}"/{build.project_name}.bootloader.bin || ( [ -f "{build.variant.path}"/{build.custom_bootloader}.bin ] && cp "{build.variant.path}"/{build.custom_bootloader}.bin "{build.path}"/{build.project_name}.bootloader.bin || "{tools.esptool_py.path}"/{tools.esptool_py.cmd} {recipe.hooks.prebuild.4.pattern_args} "{build.path}"/{build.project_name}.bootloader.bin "{compiler.sdk.path}"/bin/bootloader_{build.boot}_{build.boot_freq}.elf )"
-recipe.hooks.prebuild.4.pattern.linux=bash -c "[ -f "{build.source.path}"/bootloader.bin ] && cp -f "{build.source.path}"/bootloader.bin "{build.path}"/{build.project_name}.bootloader.bin || ( [ -f "{build.variant.path}"/{build.custom_bootloader}.bin ] && cp "{build.variant.path}"/{build.custom_bootloader}.bin "{build.path}"/{build.project_name}.bootloader.bin || python3 "{tools.esptool_py.path}"/{tools.esptool_py.cmd} {recipe.hooks.prebuild.4.pattern_args} "{build.path}"/{build.project_name}.bootloader.bin "{compiler.sdk.path}"/bin/bootloader_{build.boot}_{build.boot_freq}.elf )"
+recipe.hooks.prebuild.4.pattern.linux=bash -c "[ -f "{build.source.path}"/bootloader.bin ] && cp -f "{build.source.path}"/bootloader.bin "{build.path}"/{build.project_name}.bootloader.bin || ( [ -f "{build.variant.path}"/{build.custom_bootloader}.bin ] && cp "{build.variant.path}"/{build.custom_bootloader}.bin "{build.path}"/{build.project_name}.bootloader.bin || {tools.esptool_py.path}/{tools.esptool_py.cmd} {recipe.hooks.prebuild.4.pattern_args} "{build.path}"/{build.project_name}.bootloader.bin "{compiler.sdk.path}"/bin/bootloader_{build.boot}_{build.boot_freq}.elf )"
 recipe.hooks.prebuild.4.pattern.windows=cmd /c IF EXIST "{build.source.path}\bootloader.bin" ( COPY /y "{build.source.path}\bootloader.bin" "{build.path}\{build.project_name}.bootloader.bin" ) ELSE ( IF EXIST "{build.variant.path}\{build.custom_bootloader}.bin" ( COPY "{build.variant.path}\{build.custom_bootloader}.bin" "{build.path}\{build.project_name}.bootloader.bin" ) ELSE ( "{tools.esptool_py.path}/{tools.esptool_py.cmd}" {recipe.hooks.prebuild.4.pattern_args} "{build.path}\{build.project_name}.bootloader.bin" "{runtime.platform.path}\tools\sdk\{build.mcu}\bin\bootloader_{build.boot}_{build.boot_freq}.elf" ) )
 
 # Check if custom build options exist in the sketch folder
@@ -229,7 +229,7 @@ recipe.objcopy.partitions.bin.pattern={tools.gen_esp32part.cmd} -q "{build.path}
 ## Create bin
 recipe.objcopy.bin.pattern_args=--chip {build.mcu} elf2image --flash_mode "{build.flash_mode}" --flash_freq "{build.flash_freq}" --flash_size "{build.flash_size}" --elf-sha256-offset 0xb0 -o "{build.path}/{build.project_name}.bin" "{build.path}/{build.project_name}.elf"
 recipe.objcopy.bin.pattern="{tools.esptool_py.path}/{tools.esptool_py.cmd}" {recipe.objcopy.bin.pattern_args}
-recipe.objcopy.bin.pattern.linux=python3 "{tools.esptool_py.path}/{tools.esptool_py.cmd}" {recipe.objcopy.bin.pattern_args}
+recipe.objcopy.bin.pattern.linux="{tools.esptool_py.path}/{tools.esptool_py.cmd}" {recipe.objcopy.bin.pattern_args}
 
 ## Create Insights Firmware Package
 recipe.hooks.objcopy.postobjcopy.1.pattern_args={build.path} {build.project_name} "{build.source.path}"
@@ -278,7 +278,7 @@ tools.esptool_py.upload.params.verbose=
 tools.esptool_py.upload.params.quiet=
 tools.esptool_py.upload.pattern_args=--chip {build.mcu} --port "{serial.port}" --baud {upload.speed} {upload.flags} --before default_reset --after hard_reset write_flash {upload.erase_cmd} -z --flash_mode {build.flash_mode} --flash_freq {build.flash_freq} --flash_size {build.flash_size} {build.bootloader_addr} "{build.path}/{build.project_name}.bootloader.bin" 0x8000 "{build.path}/{build.project_name}.partitions.bin" 0xe000 "{runtime.platform.path}/tools/partitions/boot_app0.bin" 0x10000 "{build.path}/{build.project_name}.bin" {upload.extra_flags}
 tools.esptool_py.upload.pattern="{path}/{cmd}" {upload.pattern_args}
-tools.esptool_py.upload.pattern.linux=python3 "{path}/{cmd}" {upload.pattern_args}
+tools.esptool_py.upload.pattern.linux="{path}/{cmd}" {upload.pattern_args}
 
 ## Program Application
 ## -------------------
@@ -286,7 +286,7 @@ tools.esptool_py.program.params.verbose=
 tools.esptool_py.program.params.quiet=
 tools.esptool_py.program.pattern_args=--chip {build.mcu} --port "{serial.port}" --baud {upload.speed} {upload.flags} --before default_reset --after hard_reset write_flash -z --flash_mode {build.flash_mode} --flash_freq {build.flash_freq} --flash_size {build.flash_size} 0x10000 "{build.path}/{build.project_name}.bin"
 tools.esptool_py.program.pattern="{path}/{cmd}" {program.pattern_args}
-tools.esptool_py.program.pattern.linux=python3 "{path}/{cmd}" {program.pattern_args}
+tools.esptool_py.program.pattern.linux="{path}/{cmd}" {program.pattern_args}
 
 ## Erase Chip (before burning the bootloader)
 ## ------------------------------------------
@@ -295,7 +295,7 @@ tools.esptool_py.erase.params.verbose=
 tools.esptool_py.erase.params.quiet=
 tools.esptool_py.erase.pattern_args=--chip {build.mcu} --port "{serial.port}" --baud {upload.speed} {upload.flags} --before default_reset --after hard_reset erase_flash
 tools.esptool_py.erase.pattern="{path}/{cmd}" {erase.pattern_args}
-tools.esptool_py.erase.pattern.linux=python3 "{path}/{cmd}" {erase.pattern_args}
+tools.esptool_py.erase.pattern.linux="{path}/{cmd}" {erase.pattern_args}
 
 ## Burn Bootloader
 ## ---------------
