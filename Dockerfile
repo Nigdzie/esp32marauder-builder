@@ -20,10 +20,10 @@ RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/inst
 RUN arduino-cli config init && \
     arduino-cli core update-index && \
     if [[ -n "${CUSTOM_IDF}" && -n "${CUSTOM_IDF_DIR}" ]]; then \
-        mkdir -p /root/Arduino/packages/esp32/hardware/esp32 && \
+        mkdir -p /root/.arduino/packages/esp32/hardware/esp32 && \
         git clone "${CUSTOM_IDF}" \
-          "/root/Arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}" && \
-        cd "/root/Arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}" && \
+          "/root/.arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}" && \
+        cd "/root/.arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}" && \
         if [[ -n "${CUSTOM_IDF_BRANCH}" ]]; then \
             git checkout "${CUSTOM_IDF_BRANCH}"; \
             python3 tools/get.py; \
