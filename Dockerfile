@@ -26,6 +26,7 @@ RUN arduino-cli config init && \
         cd "/root/Arduino/packages/esp32/hardware/esp32/${CUSTOM_IDF_DIR}" && \
         if [[ -n "${CUSTOM_IDF_BRANCH}" ]]; then \
             git checkout "${CUSTOM_IDF_BRANCH}"; \
+            python3 tools/get.py; \
         fi; \
     else \
         arduino-cli core install esp32:esp32@${ESP32_VERSION}; \
